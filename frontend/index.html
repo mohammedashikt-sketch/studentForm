@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="studentApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Personal Details Form</title>
+
+  <!-- Bootstrap & AngularJS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body ng-controller="FormController">
+  <div class="container text-left mt-4">
+    <h3 class="mb-3">B.E/B.Tech Admissions 2025</h3>
+  </div>
+
+<div class="container d-flex justify-content-center ">
+  
+  <!-- 🔹 Personal Details Card -->
+  <div class="card shadow-sm mb-3 border-start-yellow w-100">
+    <div class="card-header card-clickable d-flex justify-content-between align-items-center" ng-click="toggleCard('personal')">
+      <h5 class="mb-0">1️⃣ Personal Details</h5>
+      <div class="d-flex align-items-center">
+        <span class="text-muted small me-2">Step 1 to 5</span>
+      <span class="arrow-icon-outline" ng-class="{'rotate-90': activeCard === 'personal'}"></span>
+
+      </div>
+    </div>
+    <!-- Card Body: Only shown when address tab is active -->
+      
+    <div class="card-body collapse" ng-class="{'show': activeCard === 'personal'}">
+      <form name="studentForm" ng-submit="submitForm(studentForm.$valid)" novalidate>
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label>Category of Admission <span class="text-danger">*</span></label>
+          <select name="category" ng-model="student.category"
+                  ng-options="cat for cat in dropdown.categories"
+                  class="form-select form-select-sm w-50" required>
+            <option value="">Select Category</option>
+          </select>
+          <div ng-show="studentForm.category.$touched && studentForm.category.$error.required" class="text-danger small">Category is required.</div>
+        </div>
+
+           <div class="mb-3" ng-show="student.category==='CIWGC'">
+          <label>Sponsor's Country of Employment-CIWGC <span class="text-danger">*</span></label>
+          <select name="ciwgc" ng-model="student.ciwgc"
+                  ng-options="con for con in dropdown.ciwgc"
+                  class="form-select form-select-sm w-50"
+                  ng-required="student.category==='CIWGC'">
+            <option value="">Select Country</option>
+          </select>
+          <div ng-show="studentForm.ciwgc.$touched && studentForm.ciwgc.$error.required" class="text-danger small">Sponsor's Country is required for CIWGC.</div>
+        </div>
+
+        <div class="mb-3" ng-show="student.category==='NRI'">
+          <label>Sponsor's Country of Employment-NRI <span class="text-danger">*</span></label>
+          <select name="nri" ng-model="student.nri"
+                  ng-options="con for con in dropdown.nri"
+                  class="form-select form-select-sm w-50"
+                  ng-required="student.category==='NRI'">
+            <option value="">Select Country</option>
+          </select>
+          <div ng-show="studentForm.nri.$touched && studentForm.nri.$error.required" class="text-danger small">Sponsor's Country is required for NRI.</div>
+        </div>
+        <hr style="border-top: 3px dashed black; margin: 1rem 0;">
+
+        <!-- Personal Info Row -->
+          <h5 class="mb-3 mt-3" >Personal Details</h5>
+        <div class="row g-3 mb-3">
+           
+          <div class="col-md-4">
+            <label>Title <span class="text-danger">*</span></label>
+            <select name="title" ng-model="student.title"
+                    ng-options="t for t in dropdown.titles"
+                    class="form-select form-select-sm" required>
+              <option value="">Select Title</option>
+            </select>
+            <div ng-show="studentForm.title.$touched && studentForm.title.$error.required" class="text-danger small">Title is required.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label>Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" ng-model="student.name" class="form-control form-control-sm" required placeholder="Enter Name">
+            <div ng-show="studentForm.name.$touched && studentForm.name.$error.required" class="text-danger small">Name is required.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label>Email <span class="text-danger">*</span></label>
+            <input type="email" name="email" ng-model="student.email" class="form-control form-control-sm" required placeholder="abc@example.com">
+            <div ng-show="studentForm.email.$touched && studentForm.email.$error.required" class="text-danger small">Email is required.</div>
+            <div ng-show="studentForm.email.$touched && studentForm.email.$error.email" class="text-danger small">Invalid email format.</div>
+          </div>
+        </div>
+
+        <!-- Mobile & DOB -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label>Mobile Number <span class="text-danger">*</span></label>
+            <div class="d-flex">
+              <select name="country_code" ng-model="student.country_code" ng-options="code for code in dropdown.con_codes" class="form-select form-select-sm me-2 w-auto" required>
+                <option value="" disabled selected>+Code</option>
+              </select>
+
+             
+            <input type="text" name="mobile" ng-model="student.mobile" class="form-control form-control-sm" ng-pattern="/^[0-9]{10}$/" required placeholder="Enter Mobile Number">
+            </div>
+            <div ng-show="studentForm.mobile.$touched && studentForm.mobile.$error.required" class="text-danger small">Mobile is required.</div>
+            <div ng-show="studentForm.mobile.$touched && studentForm.mobile.$error.pattern" class="text-danger small">Enter 10 digit number only.</div>
+           
+          </div>
+
+          <div class="col-md-4">
+            <label>Alternate Mobile</label>
+            <div class="d-flex">
+              <select ng-model="student.country_code_alt" ng-options="code for code in dropdown.con_codes" class="form-select form-select-sm me-2 w-auto">
+                <option value="" selected>+Code</option>
+              </select>
+              <input type="text" name="alt_mobile" ng-model="student.alt_mobile" class="form-control form-control-sm" ng-pattern="/^[0-9]{10}$/" placeholder="Enter Alternate Mobile Number">
+            </div>
+            <div ng-show="studentForm.alt_mobile.$touched && studentForm.alt_mobile.$error.pattern" class="text-danger small">Enter 10 digit number only.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label>Date of Birth <span class="text-danger">*</span></label>
+            <input type="date" name="dob" ng-model="student.dob" class="form-control form-control-sm" required min="1900-01-01" max="{{ today }}">
+            <div ng-show="studentForm.dob.$touched && studentForm.dob.$error.required" class="text-danger small">Date of Birth is required.</div>
+          </div>
+        </div>
+
+        <!-- Differently Abled / Community / Gender -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label>Are you differently abled?</label>
+            <select ng-model="student.differently_abled" class="form-select form-select-sm" ng-options="s for s in dropdown.s_r">
+              <option value="">Select Option</option>
+            </select>
+             <input type="text" ng-show="student.differently_abled === 'Other'" 
+       ng-model="student.differently_abled_custom" 
+       class="form-control form-control-sm" 
+       placeholder="Please specify">
+
+          </div>
+         
+
+
+         <div class="col-md-4" ng-class="{'was-validated': studentForm.$submitted}">
+  <label>Community <span class="text-danger">*</span></label>
+
+  <!-- Dropdown -->
+  <select name="community" 
+          ng-model="student.community" 
+          class="form-select form-select-sm" 
+          ng-options="c for c in dropdown.communities" 
+          required>
+    <option value="">Select Option</option>
+  </select>
+  <div ng-show="studentForm.community.$touched && studentForm.community.$error.required" class="text-danger small">
+    Community is required.
+  </div>
+
+  <!-- "Other" input -->
+  <input type="text" 
+         name="community_custom"
+         ng-show="student.community==='Other'" 
+         ng-model="student.community_custom" 
+         class="form-control form-control-sm mt-2" 
+         ng-required="student.community === 'Other'" 
+         placeholder="Please specify.">
+  <div ng-show="studentForm.community_custom.$touched && studentForm.community_custom.$error.required" class="text-danger small">
+    Community is required.
+  </div>
+</div>
+
+
+          <div class="col-md-4">
+            <label>Gender <span class="text-danger">*</span></label>
+            <select name="gender" ng-model="student.gender" class="form-select form-select-sm" ng-options="g for g in dropdown.genders" required>
+              <option value="">Select Gender</option>
+            </select>
+            <div ng-show="studentForm.gender.$touched && studentForm.gender.$error.required" class="text-danger small">Gender is required.</div>
+          </div>
+        </div>
+
+        <!-- Religion / Mother Tongue / Blood Group -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label>Religion <span class="text-danger">*</span></label>
+            <select name="religion" ng-model="student.religion" class="form-select form-select-sm" ng-options="r for r in dropdown.religions" required>
+              <option value="">Select Religion</option>
+            </select>
+            <div ng-show="studentForm.religion.$touched && studentForm.religion.$error.required" class="text-danger small">Religion is required.</div>
+           <input type="text" name="religion_custom" ng-show="student.religion==='Other'"
+             ng-model="student.religion_custom" class="form-control form-control-sm mt-2"
+             ng-required="student.religion==='Other'" placeholder="Please specify religion">
+             <div ng-show="studentForm.religion_custom.$touched && studentForm.religion_custom.$error.required" class="text-danger small">Religion is required.</div>
+          </div>
+         
+          <div class="col-md-4">
+            <label>Mother Tongue <span class="text-danger">*</span></label>
+            <select name="mother_tongue" ng-model="student.mother_tongue" class="form-select form-select-sm" ng-options="m for m in dropdown.mother_toungues" required>
+              <option value="">Select Mother Tongue</option>
+            </select>
+            <div ng-show="studentForm.mother_tongue.$touched && studentForm.mother_tongue.$error.required" class="text-danger small">Mother Tongue is required.</div>
+          <input type="text" name="mother_tongue_custom" ng-show="student.mother_tongue==='Other'"
+             ng-model="student.mother_tongue_custom" class="form-control form-control-sm mt-2"
+             ng-required="student.mother_tongue==='Other'" placeholder="Please specify mother tongue">
+             <div ng-show="studentForm.mother_tongue_custom.$touched && studentForm.mother_tongue_custom.$error.required" class="text-danger small">Mother Tongue is required.</div>
+    
+          </div>
+          <div class="col-md-4">
+            <label>Blood Group</label>
+            <select ng-model="student.blood_group" class="form-select form-select-sm" ng-options="b for b in dropdown.bloodGroups">
+              <option value="">Select Blood Group</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Nationality / First Graduate / Aadhar -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label>Nationality <span class="text-danger">*</span></label>
+            <select name="nationality" ng-model="student.nationality" class="form-select form-select-sm" ng-options="n for n in dropdown.nationalities" required>
+              <option value="">Select Nationality</option>
+            </select>
+            <div ng-show="studentForm.nationality.$touched && studentForm.nationality.$error.required" class="text-danger small">Nationality is required.</div>
+           
+      <input type="text" name="nationality_custom" ng-show="student.nationality==='Other'"
+             ng-model="student.nationality_custom" class="form-control form-control-sm mt-2"
+             ng-required="student.nationality==='Other'" placeholder="Please specify nationality">
+             <div ng-show="studentForm.nationality_custom.$touched && studentForm.nationality_custom.$error.required" class="text-danger small">Nationality is required.</div>
+
+          
+          
+          </div>
+          <div class="col-md-4">
+            <label>Will you be the first person to graduate in your family?</label>
+            <select ng-model="student.first_graduate" class="form-select form-select-sm" ng-options="s for s in dropdown.s_r">
+              <option value="">Select Option</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>Aadhar Number <span class="text-danger">*</span></label>
+            <input type="text" name="aadhar_number" ng-model="student.aadhar_number" class="form-control form-control-sm" ng-pattern="/^[0-9]{12}$/" required placeholder="Enter Aadhar Number">
+            <div ng-show="studentForm.aadhar_number.$touched && studentForm.aadhar_number.$error.required" class="text-danger small">Aadhar is required.</div>
+            <div ng-show="studentForm.aadhar_number.$touched && studentForm.aadhar_number.$error.pattern" class="text-danger small">Enter valid 12-digit Aadhar number.</div>
+          </div>
+        </div>
+
+        <!-- College Info / Residency / State -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label>How did you know about SSN College?</label>
+            <select ng-model="student.college_info_source" class="form-select form-select-sm" ng-options="s for s in dropdown.infoSources">
+              <option value="">Select Option</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>Country of Residency <span class="text-danger">*</span></label>
+            <select name="country_of_residency" ng-model="student.country_of_residency" class="form-select form-select-sm" ng-options="c for c in dropdown.countries" required>
+              <option value="">Select Country</option>
+            </select>
+             <div ng-show="studentForm.country_of_residency.$touched && studentForm.country_of_residency.$error.required" class="text-danger small">Country is required.</div>
+             <input type="text" name="country_of_residency_custom" ng-show="student.country_of_residency==='Other'"
+             ng-model="student.country_of_residency_custom" class="form-control form-control-sm mt-2"
+             ng-required="student.country_of_residency==='Other'" placeholder="Please specify city">
+            <div ng-show="studentForm.country_of_residency_custom.$touched && studentForm.country_of_residency_custom.$error.required" class="text-danger small">Country is required.</div>
+          
+          </div>
+          <div class="col-md-4">
+            <label>State <span class="text-danger">*</span></label>
+            <select name="state" ng-model="student.state" class="form-select form-select-sm" ng-options="s for s in dropdown.states" required>
+              <option value="">Select State</option>
+            </select>
+            <div ng-show="studentForm.state.$touched && studentForm.state.$error.required" class="text-danger small">State is required.</div>
+             
+            <input type="text" name="state_custom" ng-show="student.state==='Other'"
+             ng-model="student.state_custom" class="form-control form-control-sm mt-2"
+             ng-required="student.state==='Other'" placeholder="Please specify state">
+             <div ng-show="studentForm.state_custom.$touched && studentForm.state_custom.$error.required" class="text-danger small">State is required.</div>
+          
+          
+          </div>
+        </div>
+
+        <!-- District / City -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label>District <span class="text-danger">*</span></label>
+            <select name="district" ng-model="student.district" class="form-select form-select-sm" ng-options="d for d in dropdown.districts" required>
+              <option value="">Select District</option>
+            </select>
+            <div ng-show="studentForm.district.$touched && studentForm.district.$error.required" class="text-danger small">District is required.</div>
+            <input type="text" name="district_custom" ng-show="student.district==='Other'"
+             ng-model="student.district_custom" class="form-control form-control-sm mt-2"
+             ng-required="student.district==='Other'" placeholder="Please specify district">
+             <div ng-show="studentForm.district_custom.$touched && studentForm.district_custom.$error.required" class="text-danger small">District is required.</div>
+          
+          
+          
+          
+          
+          
+          </div>
+          <div class="col-md-4">
+            <label>City <span class="text-danger">*</span></label>
+            <select name="city" ng-model="student.city" class="form-select form-select-sm" ng-options="c for c in dropdown.cities" required>
+              <option value="">Select City</option>
+            </select>
+            <div ng-show="studentForm.city.$touched && studentForm.city.$error.required" class="text-danger small">City is required.</div>
+             <input type="text" name="city_custom" ng-show="student.city==='Other'"
+             ng-model="student.city_custom" class="form-control form-control-sm mt-2"
+             ng-required="student.city==='Other'" placeholder="Please specify city">
+            <div ng-show="studentForm.city_custom.$touched && studentForm.city_custom.$error.required" class="text-danger small">City is required.</div>
+          
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <!--<div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary btn-sm shadow" ng-disabled="studentForm.$invalid">Submit</button>
+        </div>-->
+
+      </form>
+      
+    </div>
+   </div>
+  </div>
+
+<div class="container d-flex justify-content-center ">
+  <!-- 🔹 Address Details Card -->
+  <div class="card shadow-sm mb-3 border-start-green w-100">
+    <div class="card-header card-clickable d-flex justify-content-between align-items-center" ng-click="toggleCard('address')">
+      <h5 class="mb-0">3️⃣ Address Details</h5>
+      <div class="d-flex align-items-center">
+        <span class="text-muted small me-2">Step 3 to 5</span>
+        <span class="arrow-icon-outline"></span>
+      </div>
+    </div>
+
+  <!-- Card Body: Only shown when address tab is active -->
+    <div class="card-body collapse" ng-class="{'show': activeCard === 'address'}">
+      <form name="addressForm" novalidate>
+      
+      <!-- Full Address -->
+       <h5 class="mb-3" >Address For Correspondence</h5>
+        <div class="mb-3">
+          
+          <label>Full Contact Address (for further communications)<span class="text-danger">*</span></label>
+          <textarea name="fullAddress" ng-model="student.fullAddress" class="form-control form-control-sm" rows="3" required placeholder="Enter your full address"></textarea>
+           <div class="text-danger small"><strong>In case of incorrect address,further communication and brouchure will not reach you.</strong></div>
+          <div ng-show="addressForm.fullAddress.$touched && addressForm.fullAddress.$error.required" class="text-danger small">
+            Full Address is required.
+          </div>
+        </div>
+
+      <!-- Pincode -->
+        <div class="mb-3">
+          <label>Pincode <span class="text-danger">*</span></label>
+          <input type="text" name="pincode" ng-model="student.pincode" class="form-control form-control-sm" ng-pattern="/^[0-9]{6}$/" required placeholder="Enter 6-digit pincode">
+          <div class="text small">In case your country doesn't have pincode/zipcode enter 0,Only 6 digits should be accepted in the pincode field</div>
+          <div ng-show="addressForm.pincode.$touched && addressForm.pincode.$error.required" class="text-danger small">
+            Pincode is required.
+          </div>
+          
+          <div ng-show="addressForm.pincode.$touched && addressForm.pincode.$error.pattern" class="text-danger small">
+            Enter a valid 6-digit pincode.
+          </div>
+        </div>
+
+    </form>
+  </div>
+</div>
+</div>
+</div> 
+<!-- Academic Details Card (replace your current academic section with this) -->
+<div class="container d-flex justify-content-center">
+  <div class="card shadow-sm mb-3 border-start-blue w-100">
+
+    <!-- Card Header -->
+    <div class="card-header card-clickable d-flex justify-content-between align-items-center"
+         ng-click="toggleCard('academic')">
+      <h5 class="mb-0">3️⃣ Academic Details</h5>
+      <div class="d-flex align-items-center">
+        <span class="text-muted small me-2">Step 4 of 5</span>
+        <span class="arrow-icon-outline"></span>
+      </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body collapse" ng-class="{'show': activeCard === 'academic'}">
+      <form name="academicForm" novalidate>
+
+        <h5 class="mb-3"><strong>Academic Details</strong></h5>
+
+        <!-- 10th Details -->
+<h5 class="mb-3">10th Details</h5>
+<div><strong>Class 10th Details</strong> <span class="text-danger">*</span></div>
+
+<div class="table-responsive mt-2">
+  <table class="table table-bordered align-middle text-center mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>Class</th>
+        <th>School Name</th>
+        <th>Board</th>
+        <th>Roll Number</th>
+        <th>Year of Passing</th>
+        <th>Percentage</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>10th</td>
+
+        <td>
+          <input type="text"
+                 class="form-control form-control-sm"
+                 name="tenth_school"
+                 ng-model="academic10.schoolName"
+                 placeholder="Enter school name"
+                 required>
+        </td>
+
+        <td>
+          <select class="form-select form-select-sm"
+                  name="tenth_board"
+                  ng-model="academic10.board"
+                  ng-options="b for b in dropdown.board_10"
+                  required>
+            <option value="">Select Board</option>
+          </select>
+        </td>
+
+        <td>
+          <input type="text"
+                 class="form-control form-control-sm"
+                 name="tenth_roll"
+                 ng-model="academic10.rollNumber"
+                 placeholder="Enter roll no.">
+        </td>
+
+        <td>
+          <input type="number"
+                 class="form-control form-control-sm"
+                 name="tenth_year"
+                 ng-model="academic10.year"
+                 placeholder="YYYY"
+                 min="1900"
+                 max="{{ today.substring(0,4) }}">
+        </td>
+
+        <td>
+          <input type="text"
+                 class="form-control form-control-sm"
+                 name="tenth_percentage"
+                 ng-model="academic10.percentage"
+                 placeholder="e.g. 85%">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ✅ One Common Validation Message -->
+  <div class="text-danger small mt-2"
+       ng-if="(academicForm.tenth_school.$touched && academicForm.tenth_school.$invalid) ||
+       (academicForm.tenth_board.$touched && academicForm.tenth_board.$invalid)"
+>
+    Please fill in all required 10th details (School Name and Board).
+  </div>
+</div>
+
+
+        <!-- 10th Subjects -->
+        <div class="mt-4"><strong>Class 10th Subjects Score</strong> <span class="text-danger">*</span></div>
+<div class="table-responsive mt-2">
+  <table class="table table-bordered align-middle text-center mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>#</th>
+        <th>Subject</th>
+        <th>Maximum Marks (Actual)</th>
+        <th>Obtained Marks (Actual)</th>
+        <th>Percentage</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Mathematics -->
+      <tr>
+        <td>1</td>
+        <td>Mathematics</td>
+        <td>
+          <input type="number"
+                 name="math_max"
+                 class="form-control form-control-sm"
+                 ng-model="academic10.subjects.math.max"
+                 placeholder="Max"
+                 required>
+        </td>
+        <td>
+          <input type="number"
+                 name="math_obt"
+                 class="form-control form-control-sm"
+                 ng-model="academic10.subjects.math.obt"
+                 placeholder="Obtained"
+                 required>
+        </td>
+        <td>
+          <input type="text"
+                 name="math_perc"
+                 class="form-control form-control-sm"
+                 ng-model="academic10.subjects.math.perc"
+                 placeholder="e.g. 85%"
+                 required>
+        </td>
+      </tr>
+
+      <!-- Science -->
+      <tr>
+        <td>2</td>
+        <td>Science</td>
+        <td>
+          <input type="number"
+                 name="science_max"
+                 class="form-control form-control-sm"
+                 ng-model="academic10.subjects.science.max"
+                 placeholder="Max"
+                 required>
+        </td>
+        <td>
+          <input type="number"
+                 name="science_obt"
+                 class="form-control form-control-sm"
+                 ng-model="academic10.subjects.science.obt"
+                 placeholder="Obtained"
+                 required>
+        </td>
+        <td>
+          <input type="text"
+                 name="science_perc"
+                 class="form-control form-control-sm"
+                 ng-model="academic10.subjects.science.perc"
+                 placeholder="e.g. 85%"
+                 required>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ✅ Common validation message for all fields -->
+  <div class="text-danger small mt-2"
+       ng-if="(academicForm.math_max.$touched && academicForm.math_max.$invalid) ||
+       (academicForm.math_obt.$touched && academicForm.math_obt.$invalid) ||
+       (academicForm.math_perc.$touched && academicForm.math_perc.$invalid) ||
+       (academicForm.science_max.$touched && academicForm.science_max.$invalid) ||
+       (academicForm.science_obt.$touched && academicForm.science_obt.$invalid) ||
+       (academicForm.science_perc.$touched && academicForm.science_perc.$invalid)"
+>
+    Please fill in all required fields for Class 10th subjects.
+  </div>
+</div>
+
+
+        <div class="mt-2 small text-muted">In case of multiple papers, please give combined scores.</div>
+
+        <!-- 12th Details -->
+        <h5 class="mt-4 mb-2">12th Details</h5>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label">12th School/Institute Name <span class="text-danger">*</span></label>
+            <input type="text" name="twelfth_school" ng-model="academic12.schoolName" class="form-control form-control-sm" placeholder="Enter School/Institute Name" required>
+            <div class="text-danger small" ng-show="academicForm.twelfth_school.$touched && academicForm.twelfth_school.$error.required">School/Institute is required.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Name of the Board <span class="text-danger">*</span></label>
+            <select name="twelfth_board" ng-model="academic12.board" ng-options="b for b in dropdown.board_12" class="form-select form-select-sm" required>
+              <option value="">Select Board</option>
+            </select>
+            <div class="text-danger small" ng-show="academicForm.twelfth_board.$touched && academicForm.twelfth_board.$error.required">Board is required.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">12th Roll Number <span class="text-danger">*</span></label>
+            <input type="text" name="twelfth_roll" ng-model="academic12.rollNumber" class="form-control form-control-sm" placeholder="Enter Roll Number" required>
+           <div class="text-danger small " ng-show="academicForm.twelfth_roll.$touched && academicForm.twelfth_roll.$error.required">
+                    Required.
+                  </div> 
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Year of Passing <span class="text-danger">*</span></label>
+            <input type="text" name="twelfth_year" ng-model="academic12.passingYear" class="form-control form-control-sm" placeholder="YYYY" required>
+           <div class="text-danger small " ng-show="academicForm.twelfth_year.$touched && academicForm.twelfth_year.$error.required">
+                    Required.
+                  </div> 
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">School Code Number <span class="text-danger">*</span></label>
+            <input type="text" name="twelfth_school_code" ng-model="academic12.schoolCode" class="form-control form-control-sm" placeholder="Enter School Code No." required>
+          <div class="text-danger small " ng-show="academicForm.twelfth_school_code.$touched && academicForm.twelfth_school_code.$error.required">
+                    Required.
+                  </div>
+          </div>
+          
+          <div class="col-md-4">
+            <label class="form-label">Centre Code Number <span class="text-danger">*</span></label>
+            <input type="text" name="centre_code" ng-model="academic12.centreCode" class="form-control form-control-sm" placeholder="Enter centre code" required>
+          <div class="text-danger small " ng-show="academicForm.centre_code.$touched && academicForm.centre_code.$error.required">
+                    Required.
+                  </div>
+          </div>
+        </div>
+        <div class="text-danger"><strong>Please Note :</strong> <ul> <strong> <li>Enter the 12th standard marks as issued officially by the respective boards only. Any discrepency obsered at the later stage will lead to immediate cancellation of admission. No excuses will be entertained in the regard. </li> <li>In case results are awaited, candidatas are requested to save the changes and contine once the results are declared. </li> </strong> </ul> </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Admit / Admin Card Number <span class="text-danger">*</span></label>
+            <input type="text" name="admit_card" ng-model="academic12.admitCard" class="form-control form-control-sm" placeholder="Enter admit card number" required>
+            <div class="text-danger small " ng-show="academicForm.admit_card.$touched && academicForm.admit_card.$error.required">
+                    Required.
+                  </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Cutoff Marks <span class="text-danger">*</span></label>
+            <input type="text" name="cutoff_12" ng-model="academic12.cutoff" class="form-control form-control-sm" placeholder="Enter Cutoff Marks" required>
+          <div class="text-danger small " ng-show="academicForm.cutoff_12.$touched && academicForm.cutoff_12.$error.required">
+                    Required.
+                  </div>
+          </div>
+        </div>
+
+        <!-- Marks in Qualified Exams -->
+<div class="mt-2">
+  <strong>Marks in the Qualified Exams</strong>
+  <span class="text-danger">*</span>
+</div>
+
+<div class="table-responsive mt-2">
+  <table class="table table-bordered align-middle text-center mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>Subject</th>
+        <th>Max Marks</th>
+        <th>Obtained Marks</th>
+        <th>Percentage</th>
+        <th>No of Attempts</th>
+        <th>Month & Year of Passing</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mathematics</td>
+        <td><input type="number" class="form-control form-control-sm" name="math_max" ng-model="qualified.math.max" placeholder="Max Marks" required></td>
+        <td><input type="number" class="form-control form-control-sm" name="math_obt" ng-model="qualified.math.obtained" placeholder="Obtained Marks" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="math_perc" ng-model="qualified.math.perc" placeholder="%" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="math_attempts" ng-model="qualified.math.attempts" placeholder="Attempts" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="math_month" ng-model="qualified.math.monthYear" placeholder="mm-yyyy" required></td>
+      </tr>
+
+      <tr>
+        <td>Physics</td>
+        <td><input type="number" class="form-control form-control-sm" name="physics_max" ng-model="qualified.physics.max" placeholder="Max Marks" required></td>
+        <td><input type="number" class="form-control form-control-sm" name="physics_obt" ng-model="qualified.physics.obtained" placeholder="Obtained Marks" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="physics_perc" ng-model="qualified.physics.perc" placeholder="%" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="physics_attempts" ng-model="qualified.physics.attempts" placeholder="Attempts" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="physics_month" ng-model="qualified.physics.monthYear" placeholder="mm-yyyy" required></td>
+      </tr>
+
+      <tr>
+        <td>Chemistry</td>
+        <td><input type="number" class="form-control form-control-sm" name="chemistry_max" ng-model="qualified.chemistry.max" placeholder="Max Marks" required></td>
+        <td><input type="number" class="form-control form-control-sm" name="chemistry_obt" ng-model="qualified.chemistry.obtained" placeholder="Obtained Marks" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="chemistry_perc" ng-model="qualified.chemistry.perc" placeholder="%" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="chemistry_attempts" ng-model="qualified.chemistry.attempts" placeholder="Attempts" required></td>
+        <td><input type="text" class="form-control form-control-sm" name="chemistry_month" ng-model="qualified.chemistry.monthYear" placeholder="mm-yyyy" required></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ✅ One combined validation message -->
+  <div class="text-danger small mt-2"
+       ng-if="(academicForm.math_max.$touched && academicForm.math_max.$invalid) ||
+       (academicForm.physics_max.$touched && academicForm.physics_max.$invalid) ||
+       (academicForm.chemistry_max.$touched && academicForm.chemistry_max.$invalid)">
+    Please fill in all required fields for all subjects before continuing.
+  </div>
+</div>
+
+
+        <hr style="border-top: 2px dashed #000000;">
+
+        <!-- Branch Preferences -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-3" ng-repeat="i in [1,2,3,4]">
+            <label class="form-label">
+              Branch Preference {{i}}
+              <span ng-if="i === 1" class="text-danger">*</span>
+            </label>
+
+            <select class="form-select form-select-sm"
+                    name="branch_pref_{{i}}"
+                    ng-model="branchPrefs['pref' + i]"
+                    ng-options="b for b in dropdown.branch_list"
+                    ng-required="i === 1">   <!-- ✅ required only for first -->
+              <option value="">Select Branch</option>
+            </select>
+
+            <!-- ✅ Show validation message only for first preference -->
+            <div class="text-danger small"
+                ng-if="i === 1 && academicForm['branch_pref_1'].$touched && academicForm['branch_pref_1'].$error.required">
+              Required.
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-3" ng-repeat="i in [5,6]">
+            <label class="form-label">Branch Preference {{i}}</label>
+            <select class="form-select form-select-sm" name="branch_pref_{{i}}" ng-model="branchPrefs['pref'+i]" ng-options="b for b in dropdown.branch_list">
+              <option value="">Select Branch</option>
+            </select>
+          </div>
+        </div>
+
+                  <!-- Additional Particulars -->
+            <h5 class="mt-3">Additional Particulars</h5>
+            <p>List outstanding sports / curricular achievements, scholarships, prizes / honours (last two academic years only). Enter NA if not applicable.</p>
+
+            <!-- Extra-curricular Details -->
+            <div class="mb-3 position-relative">
+              <label class="form-label">Extra-curricular Details <span class="text-danger">*</span></label>
+              <textarea name="extra_curricular"
+                        ng-model="extra_curricular"
+                        class="form-control form-control-sm"
+                        rows="3"
+                        placeholder="Enter Extra-curricular details"
+                        maxlength="500"
+                        required></textarea>
+             <div class="text-end small text-muted mt-1">
+                  {{ extra_curricular ? extra_curricular.length : 0 }}/500
+                  <div class="text-danger small " ng-show="academicForm.extra_curricular.$touched && academicForm.extra_curricular.$error.required">
+                    Required.
+                  </div>
+              </div>
+            </div>
+
+            <!-- Why SSN -->
+            <div class="mb-3 position-relative">
+              <label class="form-label">Why do you wish to join SSN College of Engineering <span class="text-danger">*</span></label>
+              <textarea name="why_ssn"
+                        ng-model="why_ssn"
+                        class="form-control form-control-sm"
+                        rows="3"
+                        placeholder="Enter reason"
+                        maxlength="500"
+                        required></textarea>
+              <div class="text-end small text-muted mt-1">
+                {{ why_ssn ? why_ssn.length : 0 }}/500
+                <div class="text-danger small " ng-show="academicForm.why_ssn.$touched && academicForm.why_ssn.$error.required">
+                    Required.
+                  </div>
+              </div>
+              
+            </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<div class="container d-flex justify-content-center">
+  <div class="card shadow-sm mb-3 border-start-blue w-100">
+
+    <!-- Card Header -->
+    <div class="card-header card-clickable d-flex justify-content-between align-items-center"
+         ng-click="toggleCard('upload')">
+      <h5 class="mb-0">3️⃣ Upload Documents</h5>
+      <div class="d-flex align-items-center">
+        <span class="text-muted small me-2">Step 5 of 5</span>
+        <span class="arrow-icon-outline"></span>
+      </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body collapse" ng-class="{'show': activeCard === 'upload'}">
+      <form name="UploadForm" novalidate>
+
+        <h5 class="mb-3"><strong>Upload Files</strong></h5>
+        <h5 class="text-primary mb-3">Please Note:</h5>
+        <ul class="declaration-points text-muted">
+          <li>Upload the official 12th  board marks only (Downloaded marksheet from respective board is accepted)</li>
+          <li>Any discrepancy observed at a later stage will lead to immediate cancellation of admission. No excuses will be entertained in this regard.</li>
+        </ul>
+
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Your Recent Photograph <span class="text-danger">*</span></label>
+            <div class="error text-danger" ng-if="errors.photo">{{ errors.photo }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'photo')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+            <div class="mt-3 text-center" ng-if="photoPreview">
+              <img ng-src="{{ photoPreview }}" class="img-thumbnail rounded shadow-sm" style="max-width:200px; max-height:200px;">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Your Signature <span class="text-danger">*</span></label>
+            <div class="error text-danger" ng-if="errors.signature">{{ errors.signature }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'signature')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+            <div class="mt-3 text-center" ng-if="signaturePreview">
+              <img ng-src="{[{ signaturePreview }]}" class="img-thumbnail rounded shadow-sm" style="max-width:200px; max-height:200px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Community & 10th -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Your Community Certificate <span class="text-danger">*</span></label>
+            <div class="error text-danger" ng-if="errors.community">{{ errors.community }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png,application/pdf"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'community')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png, pdf</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+            <small class="text-muted">
+                Community Certificate issued by Tamil Nadu Government alone is valid. Other state / UT including
+                Puducherry community certificates are not valid
+            </small>
+
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Your 10th Marksheet <span class="text-danger">*</span></label>
+            <div class="error text-danger" ng-if="errors.marksheet_10th">{{ errors.marksheet_10th }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png,application/pdf"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'marksheet_10th')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png, pdf</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+          </div>
+        </div>
+
+        <!-- 12th & Diploma -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Your 12th Marksheet <span class="text-danger">*</span></label>
+            <div class="error text-danger" ng-if="errors.marksheet_12th">{{ errors.marksheet_12th }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png,application/pdf"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'marksheet_12th')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png, pdf</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Your Diploma Marksheet</label>
+            <div class="error text-danger" ng-if="errors.marksheet_diploma">{{ errors.marksheet_diploma }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png,application/pdf"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'marksheet_diploma')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png, pdf</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+          </div>
+        </div>
+
+        <!-- Graduation & Passport -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Your Graduation / Semester Marksheet</label>
+            <div class="error text-danger" ng-if="errors.marksheet_graduation">{{ errors.marksheet_graduation }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png,application/pdf"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'marksheet_graduation')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Upload your latest available marksheet</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png, pdf</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+            <small class="text-muted">if consolidated marksheet is not available, please scan the available marksheet as single pdf file and upload it.</small>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Passport / PIO / OCI (if applicable)</label>
+            <div class="error text-danger" ng-if="errors.passport">{{ errors.passport }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png,application/pdf"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'passport')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png, pdf</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+          </div>
+        </div>
+
+        <!-- Admit Card -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Upload Entrance Exam Admit Card</label>
+            <div class="error text-danger" ng-if="errors.admitcard">{{ errors.admitcard }}</div>
+            <input type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/jpg,image/png,application/pdf"
+                   onchange="angular.element(this).scope().validateFile(this.files[0], 'admitcard')">
+            <small class="text-muted">Max Upload Limit: 2MB</small>
+            <small class="text-muted">Allowed Format: jpeg, jpg, png, pdf</small>
+            <small class="text-muted">
+                <span class="text-danger">Wrong input or document would make the application invalid</span>
+            </small>
+          </div>
+        </div>
+
+        <!-- Declaration -->
+        <div class="mt-4">
+          <h3>Declaration</h3>
+          <ul class="declaration-points">
+            <li>The application is applicable only for SSN College of Engineering and not for any other institution.</li>
+            <li>Prospectus and Brochure Fee once paid will not be refunded under any circumstances.</li>
+            <li>I confirm that I have read through the eligibility rules of the college as well as the program from which I am applying. I confirm that I have enquired at SSN Administrative Office / College Campus and am aware about the entire admission process.</li>
+            <li>I fully understand that filling the application form does not guarantee the admission to the programs at SSN.</li>
+            <li>I have read and understood the process of admission followed by SSN College of Engineering. (Please verify the admission process at
+                <a href="https://www.ssn.edu.in/" class="declaration-link" target="_blank">
+                    www.ssn.edu.in
+                </a>before you apply.)
+            </li>
+            <li>The online application is complete only when the Application Form has been submitted and the online payment is received by the Admissions Office. SSN College of Engineering will not be responsible for any delay on any account.</li>
+            <li>The online application is complete only when the Application Form has been submitted along with the proper documents and the online payment is received by the Admissions Office. SSN College of Engineering will not be responsible for any delay on any account.</li>
+            <li>My original documents supporting my application will be verified by SSN College of Engineering and if any discrepancy is found at the time of joining or thereafter, it may lead to denial / cancellation of admission.</li>
+          </ul>
+
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="terms" ng-model="termsAccepted">
+            <label class="form-check-label" for="terms">I agree that I have read the eligibility criteria of the M.E/M.Tech program and I fulfill the eligibility criteria as prescribed by Anna University Norms.</label>
+            <div class="text-danger small" ng-if="termsAccepted === false">You must accept the terms</div>
+          </div>
+        </div>
+
+        <!-- Applicant Info -->
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <label class="form-label">Applicant Name</label>
+            <input type="text" class="form-control" ng-model="applicant_name" placeholder="Enter Applicant Name">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Parent Name</label>
+            <input type="text" class="form-control" ng-model="parent_name" placeholder="Enter Parent Name">
+          </div>
+          <div class="row mt-3">
+          <div class="col-md-6">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" ng-model="date">
+          </div>
+        </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+ <!-- Submit -->
+        <div class="text-center mb-4 mt-2">
+          <button type="submit" class="btn btn-primary btn-sm shadow"  ng-click="submitForm(studentForm.$valid, addressForm.$valid)">Submit</button>
+        </div>
+
+<script src="js/app.js"></script>
+<script src="js/data/dropdownData.js"></script>
+<script src="js/services/apiService.js"></script>
+<script src="js/controllers/formController.js"></script>
+</body>
+</html>
