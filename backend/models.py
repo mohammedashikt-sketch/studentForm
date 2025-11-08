@@ -1,15 +1,16 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, date
 
 db = SQLAlchemy()
 
 # ============================================================
-# 🧩 Student Personal / Admission Details
+# 🧩 Student Personal / Admission Details (Your Friend’s Table)
 # ============================================================
 class Student(db.Model):
     __tablename__ = 'student'  # Table name
 
     id = db.Column(db.Integer, primary_key=True)
+    unique_number = db.Column(db.String(50), unique=True, nullable=False)
 
     # 🔹 Admission details
     category = db.Column(db.String(50), nullable=False)
@@ -59,6 +60,15 @@ class Student(db.Model):
         cascade="all, delete-orphan"
     )
 
+    # ✅ Added: Relationship to upload table
+    uploads = db.relationship(
+        'StudentUpload',
+        back_populates='student',
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
+
 # ============================================================
 # 📦 Student Address Details
 # ============================================================
@@ -70,6 +80,7 @@ class StuAddress(db.Model):
     pincode = db.Column(db.Integer, nullable=False)
 
     student = db.relationship('Student', back_populates='address')
+
 
 # ============================================================
 # 🎓 Academic Details (10th, 12th & Preferences)
@@ -137,6 +148,32 @@ class StudentAcademic(db.Model):
 
     # Back reference to student
     student = db.relationship('Student', back_populates='academic')
+
+
+# ============================================================
+# 🗂️ NEW TABLE: Student Upload Details (Your Upload Table)
+# ============================================================
+class StudentUpload(db.Model):
+    __tablename__ = 'student_uploads'
+
+    id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
+    applicant_name = db.Column(db.String(255), nullable=False)
+    parent_name = db.Column(db.String(255), nullable=False)
+    date_of_application = db.Column(db.Date, default=date.today)
+
+    community_path = db.Column(db.String(500))  
+    photo_path = db.Column(db.String(500))
+    signature_path = db.Column(db.String(500))
+    marksheet_10th_path = db.Column(db.String(500))
+    marksheet_12th_path = db.Column(db.String(500))
+    marksheet_graduation_path = db.Column(db.String(500))
+    marksheet_diploma_path = db.Column(db.String(500))
+    passport_path = db.Column(db.String(500))
+    admitcard_path = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    student = db.relationship('Student', back_populates='uploads')
+
 
 # ============================================================
 # ✅ Helper: Initialize database (optional)
