@@ -1,22 +1,28 @@
-app.controller('FormController', function($scope, apiService, dropdownData) {
+app.controller('FormController', function($scope, apiService, dropdownData, $http) {
+  // ===========================================================
   // 🔹 Initialize variables
+  // ===========================================================
   $scope.activeCard = null;
   $scope.today = new Date().toISOString().split('T')[0];
-  $scope.student = {};               // Personal + Address
-  $scope.academic10 = { subjects: {} }; // 10th details
-  $scope.academic12 = {};            // 12th details
-  $scope.qualified = {};             // Qualified exam
-  $scope.branchPrefs = {};           // Branch preferences
+  $scope.student = {};
+  $scope.academic10 = { subjects: {} };
+  $scope.academic12 = {};
+  $scope.qualified = {};
+  $scope.branchPrefs = {};
   $scope.extra_curricular = "";
   $scope.why_ssn = "";
   $scope.dropdown = dropdownData;
 
-  // 🔹 Toggle collapsible card
+  // ===========================================================
+  // 🔹 Collapsible card toggle
+  // ===========================================================
   $scope.toggleCard = function(card) {
     $scope.activeCard = ($scope.activeCard === card) ? null : card;
   };
 
+  // ===========================================================
   // 🔹 Country code dropdown label
+  // ===========================================================
   $scope.codeDisplay = function(code) {
     if ($scope.student && $scope.student.country_code === code.code) {
       return code.code;
@@ -25,124 +31,223 @@ app.controller('FormController', function($scope, apiService, dropdownData) {
   };
 
   // ===========================================================
-  // 🔹 FORM SUBMISSION (All Sections Together)
+  // 🔹 FILE UPLOAD SECTION (merged from UploadController)
   // ===========================================================
-  $scope.submitForm = function(isValid) {
-    if (!isValid) {
-      alert("Please check all required fields before submitting.");
+  $scope.errors = {};
+  $scope.message = "";
+  $scope.isSubmitting = false;
+
+  $scope.uploadedFiles = {
+    photo: false,
+    signature: false,
+    community: false,
+    marksheet_10th: false,
+    marksheet_12th: false,
+    marksheet_diploma: false,
+    marksheet_graduation: false,
+    passport: false,
+    admitcard: false
+  };
+
+  // File validation and preview
+  $scope.validateFile = function(file, field) {
+    if (!file) {
+      $scope.uploadedFiles[field] = false;
+      $scope[field + 'Preview'] = null;
+      $scope[field] = null;
       return;
     }
 
-    // ✅ Handle custom “Other” dropdown values
-    const otherFields = [
-      'community', 'religion', 'mother_tongue', 'nationality',
-      'state', 'district', 'city', 'country_of_residency'
-    ];
-    otherFields.forEach(field => {
-      const customField = field + '_custom';
-      if ($scope.student[field] === 'Other' && $scope.student[customField]) {
-        $scope.student[field] = $scope.student[customField];
-      }
-    });
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    const ext = file.name.split('.').pop().toLowerCase();
+    const allowedExt = ['jpeg','jpg','png','pdf'];
 
-    // ✅ Format DOB (YYYY-MM-DD)
-    if ($scope.student.dob) {
-      $scope.student.dob = new Date($scope.student.dob).toISOString().split('T')[0];
+    if (file.size > maxSize) {
+      $scope.errors[field] = "File too large (max 2MB)";
+      $scope.uploadedFiles[field] = false;
+      return;
     }
 
-    // ✅ Merge Address
-    if ($scope.student.fullAddress && $scope.student.pincode) {
-      $scope.student.address = {
-        fullAddress: $scope.student.fullAddress,
-        pincode: $scope.student.pincode
-      };
+    if (!allowedExt.includes(ext)) {
+      $scope.errors[field] = "Invalid file type";
+      $scope.uploadedFiles[field] = false;
+      return;
     }
 
-    // ===========================================================
-    // 🎓 Merge Academic Data into single JSON structure
-    // ===========================================================
-    const academic = {
-      // 10th details
-      tenth_school: $scope.academic10.schoolName,
-      tenth_board: $scope.academic10.board,
-      tenth_roll_number: $scope.academic10.rollNumber,
-      tenth_year: $scope.academic10.year,
-      tenth_percentage: $scope.academic10.percentage,
+    $scope.errors[field] = null;
+    $scope.uploadedFiles[field] = true;
 
-      // 10th subjects
-      tenth_math_max: $scope.academic10.subjects?.math?.max,
-      tenth_math_obt: $scope.academic10.subjects?.math?.obt,
-      tenth_math_perc: $scope.academic10.subjects?.math?.perc,
-      tenth_sci_max: $scope.academic10.subjects?.science?.max,
-      tenth_sci_obt: $scope.academic10.subjects?.science?.obt,
-      tenth_sci_perc: $scope.academic10.subjects?.science?.perc,
+    $scope[field] = file; 
 
-      // 12th details
-      twelfth_school: $scope.academic12.schoolName,
-      twelfth_board: $scope.academic12.board,
-      twelfth_roll_number: $scope.academic12.rollNumber,
-      twelfth_year: $scope.academic12.passingYear,
-      twelfth_school_code: $scope.academic12.schoolCode,
-      twelfth_centre_code: $scope.academic12.centreCode,
-      admit_card: $scope.academic12.admitCard,
-      cutoff: $scope.academic12.cutoff,
-
-      // Qualified exam marks
-      math_marks: $scope.qualified.math?.obtained,
-      math_perc: $scope.qualified.math?.perc,
-      math_attempts: $scope.qualified.math?.attempts,
-      math_month_year: $scope.qualified.math?.monthYear,
-
-      physics_marks: $scope.qualified.physics?.obtained,
-      physics_perc: $scope.qualified.physics?.perc,
-      physics_attempts: $scope.qualified.physics?.attempts,
-      physics_month_year: $scope.qualified.physics?.monthYear,
-
-      chemistry_marks: $scope.qualified.chemistry?.obtained,
-      chemistry_perc: $scope.qualified.chemistry?.perc,
-      chemistry_attempts: $scope.qualified.chemistry?.attempts,
-      chemistry_month_year: $scope.qualified.chemistry?.monthYear,
-
-      // Branch preferences
-      branch_pref_1: $scope.branchPrefs.pref1,
-      branch_pref_2: $scope.branchPrefs.pref2,
-      branch_pref_3: $scope.branchPrefs.pref3,
-      branch_pref_4: $scope.branchPrefs.pref4,
-      branch_pref_5: $scope.branchPrefs.pref5,
-      branch_pref_6: $scope.branchPrefs.pref6,
-
-      // Additional particulars
-      extra_curricular: $scope.extra_curricular,
-      why_ssn: $scope.why_ssn
-    };
-
-    // Attach to student
-    $scope.student.academic = academic;
-
-    // ===========================================================
-    // 🔹 Submit to API (All in one)
-    // ===========================================================
-    apiService.saveStudent($scope.student)
-      .then(function(res) {
-        alert(res.data.message || "Student added successfully!");
-
-        // ✅ Reset forms after submit
-        /*$scope.student = {};
-        $scope.academic10 = { subjects: {} };
-        $scope.academic12 = {};
-        $scope.qualified = {};
-        $scope.branchPrefs = {};
-        $scope.extra_curricular = "";
-        $scope.why_ssn = "";*/
-
-        if ($scope.studentForm) {
-          $scope.studentForm.$setPristine();
-          $scope.studentForm.$setUntouched();
-        }
-        $scope.activeCard = null;
-      })
-      .catch(function(err) {
-        alert("Error: " + (err.data?.error || "Server error"));
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      $scope.$apply(() => {
+        $scope[field + 'Preview'] = e.target.result;
       });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  $scope.isImage = function(file) {
+    if (!file || !file.name) return false;
+    const ext = file.name.split('.').pop().toLowerCase();
+    return ['jpeg','jpg','png'].includes(ext);
+  };
+
+  $scope.allFilesUploaded = function() {
+    return Object.values($scope.uploadedFiles).every(v => v);
+  };
+
+  $scope.openPDF = function(pdfUrl, fileName) {
+    if (!pdfUrl) {
+      alert("No PDF available to preview!");
+      return;
+    }
+    const pdfWindow = window.open("", "_blank", "width=900,height=700");
+    pdfWindow.document.write(`
+      <html><head><title>${fileName || 'PDF Preview'}</title></head>
+      <body style="margin:0;"><embed src="${pdfUrl}" type="application/pdf" width="100%" height="100%"></body>
+      </html>
+    `);
+    pdfWindow.document.close();
+  };
+
+  // ===========================================================
+  // 🔹 FORM SUBMISSION (All Sections + Upload Together)
+  // ===========================================================
+  $scope.submitForm = function(isValid) {
+  if (!isValid) {
+    alert("Please check all required fields before submitting.");
+    return;
+  }
+
+   // ✅ Check terms checkbox
+  if (!$scope.termsAccepted) {
+    alert("You must accept the terms to submit the form.");
+    return;
+  }
+
+  const requiredFiles = ['photo', 'signature', 'community', 'marksheet_10th', 'marksheet_12th', 'marksheet_diploma','marksheet_graduation','passport','admitcard'];
+  for (const file of requiredFiles) {
+    if (!$scope.uploadedFiles[file]) {
+      alert("Please upload all required files before submitting.");
+      return;
+    }
+  }
+
+  // ===========================================================
+  // 🔹 Handle “Other” dropdown options
+  // ===========================================================
+  const otherFields = [
+    'community', 'religion', 'mother_tongue', 'nationality',
+    'state', 'district', 'city', 'country_of_residency'
+  ];
+  otherFields.forEach(field => {
+    const customField = field + '_custom';
+    if ($scope.student[field] === 'Other' && $scope.student[customField]) {
+      $scope.student[field] = $scope.student[customField];
+    }
+  });
+
+  // ===========================================================
+  // 🔹 Format DOB
+  // ===========================================================
+  if ($scope.student.dob) {
+    $scope.student.dob = new Date($scope.student.dob).toISOString().split('T')[0];
+  }
+
+  // ===========================================================
+  // 🔹 Address
+  // ===========================================================
+  if ($scope.student.fullAddress && $scope.student.pincode) {
+    $scope.student.address = {
+      fullAddress: $scope.student.fullAddress,
+      pincode: $scope.student.pincode
+    };
+  }
+
+  // ===========================================================
+  // 🔹 Academic Data Merge
+  // ===========================================================
+  const academic = {
+    tenth_school: $scope.academic10.schoolName,
+    tenth_board: $scope.academic10.board,
+    tenth_roll_number: $scope.academic10.rollNumber,
+    tenth_year: $scope.academic10.year,
+    tenth_percentage: $scope.academic10.percentage,
+    tenth_math_max: $scope.academic10.subjects?.math?.max,
+    tenth_math_obt: $scope.academic10.subjects?.math?.obt,
+    tenth_math_perc: $scope.academic10.subjects?.math?.perc,
+    tenth_sci_max: $scope.academic10.subjects?.science?.max,
+    tenth_sci_obt: $scope.academic10.subjects?.science?.obt,
+    tenth_sci_perc: $scope.academic10.subjects?.science?.perc,
+    twelfth_school: $scope.academic12.schoolName,
+    twelfth_board: $scope.academic12.board,
+    twelfth_roll_number: $scope.academic12.rollNumber,
+    twelfth_year: $scope.academic12.passingYear,
+    twelfth_school_code: $scope.academic12.schoolCode,
+    twelfth_centre_code: $scope.academic12.centreCode,
+    admit_card: $scope.academic12.admitCard,
+    cutoff: $scope.academic12.cutoff,
+    math_marks: $scope.qualified.math?.obtained,
+    physics_marks: $scope.qualified.physics?.obtained,
+    chemistry_marks: $scope.qualified.chemistry?.obtained,
+    branch_pref_1: $scope.branchPrefs.pref1,
+    branch_pref_2: $scope.branchPrefs.pref2,
+    extra_curricular: $scope.extra_curricular,
+    why_ssn: $scope.why_ssn
+  };
+  $scope.student.academic = academic;
+
+  // ===========================================================
+  // 🔹 Collect Uploaded Files
+  // ===========================================================
+  const uploadFiles = {
+    photo: $scope.photo,
+    signature: $scope.signature,
+    community: $scope.community,
+    marksheet_10th: $scope.marksheet_10th,
+    marksheet_12th: $scope.marksheet_12th,
+    marksheet_diploma: $scope.marksheet_diploma,
+    marksheet_graduation: $scope.marksheet_graduation,
+    passport: $scope.passport,
+    admitcard: $scope.admitcard
+  };
+
+  $scope.student.applicant_name = $scope.applicant_name;
+  $scope.student.parent_name = $scope.parent_name;
+  $scope.student.date = $scope.date; // optional
+
+
+  // ===========================================================
+  // 🔹 Send Data + Files to Backend
+  // ===========================================================
+  $scope.isSubmitting = true;
+
+  apiService.saveStudent($scope.student, uploadFiles)
+    .then(function(response) {
+      alert(response.data.message || "Student uploaded successfully!");
+      console.log("✅ Upload Success:", response.data);
+
+      // Reset form
+      $scope.student = {};
+      $scope.academic10 = { subjects: {} };
+      $scope.academic12 = {};
+      $scope.qualified = {};
+      $scope.branchPrefs = {};
+      $scope.extra_curricular = "";
+      $scope.why_ssn = "";
+      $scope.isSubmitting = false;
+
+      if ($scope.studentForm) {
+        $scope.studentForm.$setPristine();
+        $scope.studentForm.$setUntouched();
+      }
+    })
+    .catch(function(error) {
+      alert("❌ Upload failed: " + (error.data?.error || "Server error"));
+      console.error(error);
+      $scope.isSubmitting = false;
+    });
   };
 });
