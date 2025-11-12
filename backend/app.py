@@ -1,11 +1,12 @@
 import os
 import json
+import logging
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from config import Config
-from models import db, Student, StuAddress, StudentAcademic, StudentUpload
+from models import db, Student, StudentParent, StuAddress, StudentAcademic, StudentUpload
 from utils import allowed_file, generate_unique_number, validate_student_data
 
 # ============================================================
@@ -18,6 +19,15 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+# ============================================================
+# Logging Configuration
+# ============================================================
+logging.basicConfig(
+    filename='app.log',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 # ============================================================
 # Serve Frontend
@@ -36,25 +46,29 @@ def serve_static_files(path):
 @app.route('/api/students/upload', methods=['POST'])
 def upload_and_save_student():
     try:
+        logging.info("📥 Received student upload request")
+
         student_data = request.form.get('student_data')
         if not student_data:
+            logging.warning("Student data missing in request")
             return jsonify({'error': "Student data missing"}), 400
 
         data = json.loads(student_data)
         error = validate_student_data(data)
         if error:
+            logging.warning(f"Validation failed: {error}")
             return jsonify({"error": error}), 400
 
-        # Parse DOB
+        # Parse DOB safely
         dob_str = data.get('dob')
         try:
             dob_value = datetime.strptime(dob_str, "%Y-%m-%d")
         except ValueError:
             dob_value = datetime.fromisoformat(dob_str.replace("Z", ""))
 
-        # -------------------------------
-        # Create Student ORM
-        # -------------------------------
+        logging.info("✅ Basic student data parsed")
+
+        # Prepare related tables
         address_data = data.get('address', {})
         academic_data = data.get('academic', {})
 
@@ -134,16 +148,38 @@ def upload_and_save_student():
             why_ssn=academic_data.get('why_ssn')
         )
 
-        student.address = address
-        student.academic = academic
-
-        # Commit student to generate ID
         db.session.add(student)
-        db.session.commit()
-        student_id = student.id
-
+        db.session.flush()
+        
+        parent = StudentParent(
+            id=student.id,
+            father_title=data.get('father_title'),
+            father_name=data.get('father_name'),
+            father_mobile=data.get('father_mobile'),
+            father_landline=data.get('father_landline'),
+            father_email=data.get('father_email'),
+            father_occupation=data.get('father_occupation'),
+            father_designation=data.get('father_designation'),
+            father_annual_income=data.get('father_annual_income'),
+            mother_title=data.get('mother_title'),
+            mother_name=data.get('mother_name'),
+            mother_mobile=data.get('mother_mobile'),
+            mother_landline=data.get('mother_landline'),
+            mother_email=data.get('mother_email'),
+            mother_occupation=data.get('mother_occupation'),
+            mother_designation=data.get('mother_designation'),
+            mother_annual_income=data.get('mother_annual_income'),
+            has_guardian=data.get('has_guardian'),
+            guardian_title=data.get('guardian_title'),
+            guardian_name=data.get('guardian_name'),
+            guardian_mobile=data.get('guardian_mobile'),
+            guardian_landline=data.get('guardian_landline'),
+            guardian_email=data.get('guardian_email'),
+            guardian_occupation=data.get('guardian_occupation'),
+            guardian_designation=data.get('guardian_designation')
+        )
         # -------------------------------
-        # File Uploads
+        # File Uploads (before commit)
         # -------------------------------
         files = request.files
         file_fields = [
@@ -152,30 +188,32 @@ def upload_and_save_student():
             'community', 'passport', 'admitcard'
         ]
 
-        paths = {}
         upload_folder = app.config['UPLOAD_FOLDER']
-        if not os.path.exists(upload_folder):
-            os.makedirs(upload_folder)
+        os.makedirs(upload_folder, exist_ok=True)
 
+        paths = {}
         for key in file_fields:
             file = files.get(key)
             if file and allowed_file(file.filename, key):
                 ext = file.filename.rsplit('.', 1)[1].lower()
-                filename = f"{student_id}_{key}.{ext}"
+                filename = f"{student.id}_{key}.{ext}"
                 file_path = os.path.join(upload_folder, secure_filename(filename))
                 file.save(file_path)
-                # Store full relative path
                 paths[key] = os.path.join('uploads', filename)
+                logging.info(f"✅ Saved file {filename}")
             else:
                 paths[key] = None
+                logging.warning(f"⚠️ No valid file uploaded for {key}")
+
+        
 
         # -------------------------------
-        # Save file paths to DB
+        # Save Upload Info
         # -------------------------------
         upload = StudentUpload(
-            id=student_id,
+            id=student.id,
             applicant_name=data['name'],
-            parent_name=data.get('parent_name', ''),
+            parent_name=data['parent_name'],
             community_path=paths['community'],
             photo_path=paths['photo'],
             signature_path=paths['signature'],
@@ -187,16 +225,20 @@ def upload_and_save_student():
             admitcard_path=paths['admitcard']
         )
 
-        db.session.add(upload)
+        student.address = address
+        student.academic = academic
+        student.parent = parent
+
+        # Link all under one commit
+        db.session.add_all([student, parent, address, academic, upload])
         db.session.commit()
 
-        return jsonify({
-            "message": "Student data + files uploaded successfully!",
-            "student_id": student_id
-        }), 201
+        logging.info("🎉 Student and related data committed successfully")
+        return jsonify({"message": "Student data + files uploaded successfully!"}), 201
 
     except Exception as e:
         db.session.rollback()
+        logging.error(f"❌ Error: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 # ============================================================

@@ -39,6 +39,18 @@ app.constant('dropdownData', {
   
   board_12 : ["CBSE", "ISC", "TN State Board", "MSBSHSE", "DHSE", "KSEEB", "BIEAP", "TSBIE", "WBCHSE", "BSEB", "UPMSP", "RBSE", "GSHSEB", "MPBSE", "PSEB", "HBSE", "CHSE", "AHSEC", "JAC", "GBSHSE", "MBOSE", "MBSE", "NBSE", "TBSE", "COHSEM", "NIOS", "IB", "IGCSE"],
 
- branch_list : ["Computer Science and Engineering (CSE)", "Electronics and Communication Engineering (ECE)", "Electrical and Electronics Engineering (EEE)", "Mechanical Engineering (ME)", "Civil Engineering (CE)", "Information Technology (IT)"]
+  branch_list : ["Computer Science and Engineering (CSE)", "Electronics and Communication Engineering (ECE)", "Electrical and Electronics Engineering (EEE)", "Mechanical Engineering (ME)", "Civil Engineering (CE)", "Information Technology (IT)"],
+
+  fathertitles: ['Mr', 'Dr.', 'Late','Prof'],
+
+  mothertitles: ['Mrs', 'Dr.', 'Late','Prof'],
+
+  fathersannualincome: ['Less than 1 Lakh','1 lakh - 3 lakh','3 lakh - 5 lakh','5 lakh - 10 lakh','10 lakh - 25 lakh', '25 lakh - 50 lakh', 'ABOVE 50 Lakhs'],
+
+  familyannualincome:  ['Less than 1 Lakh','1 lakh - 3 lakh','3 lakh - 5 lakh','5 lakh - 10 lakh','10 lakh - 25 lakh', '25 lakh - 50 lakh', 'ABOVE 50 Lakhs'],
+
+  fatheroccupation: ['Private Sector','Government Sector','Business','Retired'],
+
+  occupation: ['Private Sector','Government Sector','Business','Retired','Homemaker'],
 
 });

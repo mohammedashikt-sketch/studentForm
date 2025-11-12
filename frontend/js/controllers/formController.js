@@ -14,6 +14,17 @@ app.controller('FormController', function($scope, apiService, dropdownData, $htt
   $scope.dropdown = dropdownData;
 
   // ===========================================================
+  // 🔹 Parent Section Variables
+  // ===========================================================
+  $scope.familyBlocks = [{
+    father: {},
+    mother: {},
+    guardian: {},
+    guardian_enabled: 'No',
+    student_id: ''
+  }];
+
+  // ===========================================================
   // 🔹 Collapsible card toggle
   // ===========================================================
   $scope.toggleCard = function(card) {
@@ -120,6 +131,52 @@ app.controller('FormController', function($scope, apiService, dropdownData, $htt
     alert("Please check all required fields before submitting.");
     return;
   }
+  console.log('familyBlocks[0] =', JSON.stringify($scope.familyBlocks[0], null, 2));
+  console.log('parentForm (exists?) =', !!$scope.parentForm, $scope.parentForm);
+
+  // ✅ Check Parent details
+  const parent = $scope.familyBlocks[0];
+  $scope.student.father_name = parent.father.name;
+  $scope.student.father_mobile = parent.father.mobile;
+  $scope.student.father_email = parent.father.email;
+  $scope.student.father_occupation = parent.father.occupation;
+  $scope.student.father_annual_income = parent.father.annual_income;
+  $scope.student.father_title = parent.father.title;
+
+// Repeat for mother / guardian
+  $scope.student.mother_name = parent.mother.name;
+  $scope.student.mother_mobile = parent.mother.mobile;
+  $scope.student.mother_email = parent.mother.email;
+  $scope.student.mother_occupation = parent.mother.occupation;
+  $scope.student.mother_annual_income = parent.mother.annual_income;  
+  $scope.student.mother_title = parent.mother.title;
+
+  if(parent.guardian_enabled === 'Yes') {
+    $scope.student.has_guardian = true;
+    $scope.student.guardian_name = parent.guardian.name;
+    $scope.student.guardian_mobile = parent.guardian.mobile;
+    $scope.student.guardian_email = parent.guardian.email;
+    $scope.student.guardian_occupation = parent.guardian.occupation;
+    $scope.student.guardian_designation = parent.guardian.designation;
+    $scope.student.guardian_title = parent.guardian.title;
+  } else {
+      $scope.student.has_guardian = false;
+  }
+  // Attach parentData as a flat object to student_data
+  
+  if (!parent.father.title || !parent.father.name || !parent.father.mobile || !parent.father.email || !parent.father.occupation || !parent.father.annual_income) {
+    alert("Please complete all mandatory Father's details before submitting.");
+    return;
+  }
+  if (!parent.mother.title || !parent.mother.name || !parent.mother.mobile) {
+    alert("Please complete all mandatory Mother's details before submitting.");
+    return;
+  }
+  if (parent.guardian_enabled === 'Yes' && (!parent.guardian || !parent.guardian.name || !parent.guardian.mobile)) {
+    alert("Please complete all Guardian's details before submitting.");
+    return;
+  }
+  
 
    // ✅ Check terms checkbox
   if (!$scope.termsAccepted) {
@@ -130,7 +187,7 @@ app.controller('FormController', function($scope, apiService, dropdownData, $htt
   const requiredFiles = ['photo', 'signature', 'community', 'marksheet_10th', 'marksheet_12th', 'marksheet_diploma','marksheet_graduation','passport','admitcard'];
   for (const file of requiredFiles) {
     if (!$scope.uploadedFiles[file]) {
-      alert("Please upload all required files before submitting.");
+      alert(`Please upload the required file: ${file.replace(/_/g, ' ')}`);
       return;
     }
   }
@@ -199,6 +256,8 @@ app.controller('FormController', function($scope, apiService, dropdownData, $htt
   };
   $scope.student.academic = academic;
 
+  $scope.student.parents = $scope.familyBlocks;
+
   // ===========================================================
   // 🔹 Collect Uploaded Files
   // ===========================================================
@@ -231,6 +290,7 @@ app.controller('FormController', function($scope, apiService, dropdownData, $htt
 
       // Reset form
       $scope.student = {};
+      $scope.familyBlocks = [{ father: {}, mother: {}, guardian: {}, guardian_enabled: 'No' }];
       $scope.academic10 = { subjects: {} };
       $scope.academic12 = {};
       $scope.qualified = {};

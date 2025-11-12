@@ -277,6 +277,317 @@
             </div>
          </div>
       </div>
+      <!--parent Details-->
+      <div class="container d-flex justify-content-center ">
+         <!-- 🔹 Parent's Details Card -->
+         <div class="card shadow-sm mb-3 w-100" style="border-left: 3px solid navy;">
+            <div class="card-header card-clickable d-flex justify-content-between align-items-center" ng-click="toggleCard('parents')">
+               <h5 class="mb-0">Parent's Details</h5>
+               <div class="d-flex align-items-center">
+                  <span class="text-muted small me-2">Step 2 of 5</span>
+                  <span class="arrow-icon-outline" ng-class="{'rotate-90': activeCard === 'parents'}"></span>
+               </div>
+            </div>
+            <div class="card-body collapse" ng-class="{'show': activeCard === 'parents'}">
+               <form name="parentForm" novalidate>
+                  <div ng-repeat="fam in familyBlocks track by $index">
+                     <div class="row g-3 mb-3" >
+                        <!--<div ng-repeat="fam in familyBlocks track by $index">-->
+                        <h5><b>Father's Details</b></h5>
+                        <div class="col-md-4">
+                           <label>Father's Title <span class="text-danger">*</span></label>
+                           <select name="fathertitles" ng-model="fam.father.title"
+                              ng-options="t for t in dropdown.fathertitles"
+                              class="form-select form-select-sm" required>
+                              <option value="">Select Title</option>
+                           </select>
+                           <div ng-show="parentForm.fathertitles.$touched && parentForm.fathertitles.$error.required"
+                              class="text-danger small">Title is required.
+                           </div>
+                        </div>
+                        <div class="col-md-4">
+                           <label>Father's Name <span class="text-danger">*</span></label>
+                           <input type="text" name="father_name" ng-model="fam.father.name"
+                              class="form-control form-control-sm"
+                              required placeholder="Enter Name">
+                           <div ng-show="parentForm.fathers_name.$touched && parentForm.fathers_name.$error.required"
+                              class="text-danger small">Name is required.
+                           </div>
+                        </div>
+                        <div class="col-md-4">
+                           <!--NEW PRIYA CODED-->
+                           <label>Mobile Number <span class="text-danger">*</span></label>
+                           <div class="input-group">
+                              <!-- Country Code Dropdown -->
+                              <div class="input-group-prepend">
+                                 <select name="country_code" ng-model="fam.country_code"
+                                    ng-options="code for code in dropdown.con_codes"
+                                    class="form-control  form-select form-control-sm"
+                                    required style="max-width: 75px;">
+                                    <option value="" disabled selected>+91</option>
+                                 </select>
+                              </div>
+                              <input type="text" name="mobile" ng-model="fam.father.mobile"
+                                 class="form-control form-control-sm"
+                                 ng-pattern="/^[0-9]{10}$/"
+                                 required placeholder="Enter Father's Mobile Number">
+                           </div>
+                           <!-- Validation Messages -->
+                           <div ng-show="parentForm.mobile.$touched && parentForm.mobile.$error.required"
+                              class="text-danger small mt-1">
+                              Mobile number is required.
+                           </div>
+                           <div ng-show="parentForm.mobile.$touched && parentForm.mobile.$error.pattern"
+                              class="text-danger small mt-1">
+                              Enter a 10-digit number only.
+                           </div>
+                        </div>
+                        <!--</div>-->
+                        <!-- Mobile & DOB -->
+                        <div class="row g-3 mb-3">
+                           <div class="col-md-4">
+                              <!--NEW PRIYA CODEDPriya Landline number code Need to change Feild name-->
+                              <label>Father's Landline Number <span class="text-danger">*</span></label>
+                              <div class="input-group">
+                                 <input type="text" name="landline" ng-model="fam.father.landline"
+                                    class="form-control form-control-sm"
+                                    ng-pattern="/^[0-9]{10}$/"
+                                    required placeholder="Enter Father's Landline No.">
+                              </div>
+                              <!-- Validation Messages -->
+                              <div ng-show="parentForm.father_landline_no.$touched && parentForm.mobile.$error.required"
+                                 class="text-danger small mt-1">
+                                 Mobile number is required.
+                              </div>
+                              <div ng-show="parentForm.mobile.$touched && parentForm.mobile.$error.pattern"
+                                 class="text-danger small mt-1">
+                                 Enter a 10-digit number only.
+                              </div>
+                           </div>
+                           <!--Priya Landline number code Need to change Feild name-->
+                           <div class="col-md-4">
+                              <label>Father's Email Address <span class="text-danger">*</span></label>
+                              <input type="email" name="email" ng-model="fam.father.email"
+                                 class="form-control form-control-sm"
+                                 required placeholder="abc@example.com">
+                              <div ng-show="parentForm.email.$touched && parentForm.email.$error.required"
+                                 class="text-danger small">Email is required.
+                              </div>
+                              <div ng-show="parentForm.email.$touched && parentForm.email.$error.email"
+                                 class="text-danger small">Invalid email format.
+                              </div>
+                           </div>
+                           <div class="col-md-4">
+                              <label>Father's Occupation <span class="text-danger">*</span></label>
+                              <select name="occupation"
+                                 ng-model="fam.father.occupation"
+                                 class="form-select form-select-sm"
+                                 ng-options="c for c in dropdown.fatheroccupation"
+                                 required>
+                                 <option value="">Select Father's Occupation</option>
+                              </select>
+                              <div ng-show="parentForm.fathers_name.$touched && parentForm.fathers_name.$error.required"
+                                 class="text-danger small">Name is required.
+                              </div>
+                           </div>
+                        </div>
+                        <!-- Differently Abled / Community / Gender -->
+                        <div class="row g-3 mb-3">
+                           <div class="col-md-4">
+                              <label>Father's Designation <span class="text-danger">*</span></label>
+                              <input type="text" name="father_name" ng-model="fam.father.designation"
+                                 class="form-control form-control-sm"
+                                 required placeholder="Enter Father's Designation">
+                              <div ng-show="parentForm.designation.$touched && parentForm.designation.$error.required"
+                                 class="text-danger small">Name is required.
+                              </div>
+                           </div>
+                           <div class="col-md-4">
+                              <label>Father's Annual Income <span class="text-danger">*</span></label>
+                              <select name="fathersannualincome"
+                                 ng-model="familyBlocks[0].father.annual_income"
+                                 class="form-select form-select-sm"
+                                 ng-options="c for c in dropdown.fathersannualincome"
+                                 required>
+                                 <option value="">Select Father's Annual Income</option>
+                              </select>
+                              <div ng-show="parentForm.fathersannualincome.$touched && parentForm.fathersannualincome.$error.required"
+                                 class="text-danger small">Name is required.
+                              </div>
+                           </div>
+                        </div>
+                        <hr style="border-top: 3px dashed black; margin: 1rem 0;">
+                        <h5><b>Mother's Details — Student ID {{fam.student_id}}</b></h5>
+                        <div class="row g-3 mb-3">
+                           <div class="col-md-4">
+                              <label>Mother's Title <span class="text-danger">*</span></label>
+                              <select ng-model="fam.mother.title"
+                                 ng-options="t for t in dropdown.mothertitles"
+                                 class="form-select form-select-sm"
+                                 required>
+                                 <option value="">Select Mother's Title</option>
+                              </select>
+                           </div>
+                           <div class="col-md-4">
+                              <label>Mother's Name <span class="text-danger">*</span></label>
+                              <input type="text"
+                                 ng-model="fam.mother.name"
+                                 class="form-control form-control-sm"
+                                 required
+                                 placeholder="Enter Name">
+                           </div>
+                           <div class="col-md-4">
+                              <label>Mother's Mobile Number <span class="text-danger">*</span></label>
+                              <div class="input-group">
+                                 <select ng-model="fam.mother.country_code"
+                                    ng-options="code for code in dropdown.con_codes"
+                                    class="form-select form-select-sm"
+                                    required style="max-width: 75px;">
+                                    <option value="" disabled>+91</option>
+                                 </select>
+                                 <input type="text"
+                                    ng-model="fam.mother.mobile"
+                                    class="form-control form-control-sm"
+                                    ng-pattern="/^[0-9]{10}$/"
+                                    required
+                                    placeholder="Enter Mother's Mobile Number">
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                           <div class="col-md-4">
+                              <label>Mother's Landline Number</label>
+                              <input type="text"
+                                 ng-model="fam.mother.landline"
+                                 class="form-control form-control-sm"
+                                 ng-pattern="/^[0-9]{10}$/"
+                                 placeholder="Enter Mother's Landline No.">
+                           </div>
+                           <div class="col-md-4">
+                              <label>Mother's Email Address</label>
+                              <input type="email"
+                                 ng-model="fam.mother.email"
+                                 class="form-control form-control-sm"
+                                 placeholder="abc@example.com">
+                           </div>
+                           <div class="col-md-4">
+                              <label>Mother's Occupation</label>
+                              <select ng-model="fam.mother.occupation"
+                                 class="form-select form-select-sm"
+                                 ng-options="c for c in dropdown.occupation">
+                                 <option value="">Select Option</option>
+                              </select>
+                           </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                           <div class="col-md-4">
+                              <label>Mother's Designation <span class="text-danger">*</span></label>
+                              <input type="text" name="father_name" ng-model="fam.mother.designation"
+                                 class="form-control form-control-sm"
+                                 placeholder="Enter Mother's Designation" />
+                           </div>
+                           <div class="col-md-4">
+                              <label>Mother's Annual Income</label>
+                              <select ng-model="fam.mother.annual_income"
+                                 class="form-select form-select-sm"
+                                 ng-options="c for c in dropdown.fathersannualincome">
+                                 <option value="">Select Mother's Annual Income</option>
+                              </select>
+                           </div>
+                           <div class="row g-3 mb-3">
+                              <div class="col-md-4">
+                                 <label>Do you have a Local Guardian? <span class="text-danger">*</span></label>
+                                 <select ng-model="fam.guardian_enabled"
+                                    class="form-select form-select-sm"
+                                    required>
+                                    <option value="">Select Option</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                 </select>
+                              </div>
+                           </div>
+                        </div>
+                        <!-- Guardian Details (Shown Only If Yes) -->
+                        <div ng-show="fam.guardian_enabled === 'Yes'">
+                           <div class="row g-3 mb-3">
+                              <div class="col-md-4">
+                                 <label>Guardian's Title <span class="text-danger">*</span></label>
+                                 <select ng-model="fam.guardian.title"
+                                    ng-options="t for t in dropdown.titles"
+                                    class="form-select form-select-sm"
+                                    ng-required="fam.guardian_enabled === 'Yes'">
+                                    <option value="">Select Title</option>
+                                 </select>
+                              </div>
+                              <div class="col-md-4">
+                                 <label>Guardian's Name <span class="text-danger">*</span></label>
+                                 <input type="text"
+                                    ng-model="fam.guardian.name"
+                                    class="form-control form-control-sm"
+                                    ng-required="fam.guardian_enabled === 'Yes'"
+                                    placeholder="Enter Guardian's Name">
+                              </div>
+                              <div class="col-md-4">
+                                 <label>Guardian's Landline Number</label>
+                                 <input type="text"
+                                    ng-model="fam.guardian.landline"
+                                    class="form-control form-control-sm"
+                                    ng-pattern="/^[0-9]{10}$/"
+                                    placeholder="Enter Landline Number">
+                              </div>
+                           </div>
+                           <div class="row g-3 mb-3">
+                              <div class="col-md-4">
+                                 <label>Guardian's Mobile Number <span class="text-danger">*</span></label>
+                                 <div class="input-group">
+                                    <select ng-model="fam.guardian.country_code"
+                                       ng-options="code for code in dropdown.con_codes"
+                                       class="form-select form-select-sm me-2 w-auto"
+                                       ng-required="fam.guardian_enabled === 'Yes'">
+                                       <option value="" disabled selected>+Code</option>
+                                    </select>
+                                    <input type="text"
+                                       ng-model="fam.guardian.mobile"
+                                       class="form-control form-control-sm"
+                                       ng-pattern="/^[0-9]{10}$/"
+                                       ng-required="fam.guardian_enabled === 'Yes'"
+                                       placeholder="Enter Mobile Number">
+                                 </div>
+                              </div>
+                              <div class="col-md-4">
+                                 <label>Guardian's Email Address <span class="text-danger">*</span></label>
+                                 <input type="email"
+                                    ng-model="fam.guardian.email"
+                                    class="form-control form-control-sm"
+                                    ng-required="fam.guardian_enabled === 'Yes'"
+                                    placeholder="abc@example.com">
+                              </div>
+                              <div class="col-md-4">
+                                 <label>Guardian's Occupation</label>
+                                 <select ng-model="fam.guardian.occupation"
+                                    class="form-select form-select-sm"
+                                    ng-options="occ for occ in dropdown.occupation">
+                                    <option value="">Select Occupation</option>
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="row g-3 mb-3">
+                              <div class="col-md-4">
+                                 <label>Guardian's Designation</label>
+                                 <input type="text"
+                                    ng-model="fam.guardian.designation"
+                                    class="form-control form-control-sm"
+                                    placeholder="Enter Designation">
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+            </div>
+            </form>
+         </div>
+      </div>
+      <!--Address Details-->
       <div class="container d-flex justify-content-center ">
          <!-- 🔹 Address Details Card -->
          <div class="card shadow-sm mb-3 border-start-green w-100">

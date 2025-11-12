@@ -45,6 +45,14 @@ class Student(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    parent = db.relationship(
+        'StudentParent',
+        back_populates='student',
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
+
     # 🔹 One-to-One relationships
     address = db.relationship(
         'StuAddress',
@@ -68,6 +76,48 @@ class Student(db.Model):
         cascade="all, delete-orphan"
     )
 
+# ============================================================
+# 👨‍👩‍👧 Parent Details Table
+# ============================================================
+class StudentParent(db.Model):
+    __tablename__ = 'student_parent'
+
+    id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
+
+    # 🔹 Father’s Details
+    father_title = db.Column(db.String(20), nullable=True)
+    father_name = db.Column(db.String(100), nullable=True)
+    father_mobile = db.Column(db.String(15), nullable=True)
+    father_landline = db.Column(db.String(15))
+    father_email = db.Column(db.String(120), nullable=True)
+    father_occupation = db.Column(db.String(100), nullable=True)
+    father_designation = db.Column(db.String(100))
+    father_annual_income = db.Column(db.String(50))
+
+    # 🔹 Mother’s Details
+    mother_title = db.Column(db.String(20), nullable=True)
+    mother_name = db.Column(db.String(100), nullable=True)
+    mother_mobile = db.Column(db.String(15), nullable=True)
+    mother_landline = db.Column(db.String(15))
+    mother_email = db.Column(db.String(120))
+    mother_occupation = db.Column(db.String(100))
+    mother_designation = db.Column(db.String(100))
+    mother_annual_income = db.Column(db.String(50))
+
+    # 🔹 Guardian’s Details (Optional)
+    has_guardian = db.Column(db.String(5), default='No')  # Yes / No
+    guardian_title = db.Column(db.String(20))
+    guardian_name = db.Column(db.String(100))
+    guardian_mobile = db.Column(db.String(15))
+    guardian_landline = db.Column(db.String(15))
+    guardian_email = db.Column(db.String(120))
+    guardian_occupation = db.Column(db.String(100))
+    guardian_designation = db.Column(db.String(100))
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship back to student
+    student = db.relationship('Student', back_populates='parent')
 
 # ============================================================
 # 📦 Student Address Details
